@@ -29,13 +29,14 @@ Page {
 
     SilicaFlickable {
         anchors.fill: parent
-        contentHeight: column.height
+        contentHeight: column.height + Theme.paddingLarge
 
         Column {
             id: column
 
-            width: parent.width
-            spacing: 0
+            x: Theme.horizontalPageMargin
+            width: parent.width - 2*Theme.horizontalPageMargin
+            spacing: Theme.paddingMedium
 
             PageHeader {
                 //: Header of the License page
@@ -43,13 +44,11 @@ Page {
             }
 
             Text {
-                id: licenseText
-                width: parent.width - 2*Theme.paddingLarge
-                x: Theme.paddingLarge
-                color: Theme.secondaryColor
+                width: parent.width
+                color: Theme.highlightColor
                 wrapMode: Text.Wrap
                 textFormat: Text.StyledText
-                linkColor: Theme.highlightColor
+                linkColor: Theme.primaryColor
                 font.pixelSize: Theme.fontSizeSmall
                 onLinkActivated: Qt.openUrlExternally(link)
                 text: "<h3 style=\"text-align: center;\">GNU GENERAL PUBLIC LICENSE</h3>

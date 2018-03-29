@@ -1,118 +1,86 @@
-/*******************************************************************************
-  * FileDownloader.cpp
-  *
-  * Autor: Scharel Clemens <scharelc@gmail.com>
-  * Copyright: 2014 Scharel Clemens
-  *
-  * This file is part of BadVoltage.
-  *
-  * BadVoltage is free software: you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation, either version 3 of the License, or
-  * (at your option) any later version.
-  *
-  * BadVoltage is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-  *
-  * You should have received a copy of the GNU General Public License
-  * along with BadVoltage.  If not, see <http://www.gnu.org/licenses/>.
-  *
-  *****************************************************************************/
-
 #include "FileDownloader.h"
-#include "Settings.h"
 
 #include <QNetworkRequest>
-#include <QStandardPaths>
-#include <QDir>
 
-FileDownloader::FileDownloader(Settings* settings, QObject *parent) :
-    QObject(parent), _settings(settings), _lastBytesReceived(0), _downloading(false)
+FileDownloader::FileDownloader(QObject *parent) :
+    QObject(parent), _lastBytesReceived(0), _downloading(false), _progress(0.0)
 {
-    QString storagePath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    QDir().mkpath(storagePath);
-    QDir().setCurrent(storagePath);
-    checkLocalFiles();
+    setFilePath();
 }
 
-void FileDownloader::doDownload(int season, int episode) {
-    QString settingsKey = QString("content/%1/%2/enclosure_url").arg(season).arg(episode);
-    QString downloadURL = _settings->value(settingsKey, "NO_DATA").toString();
-    settingsKey = QString("downloads/%1/%2/downloaded").arg(season).arg(episode);
-    bool downloaded = _settings->value(settingsKey, false).toBool();
+FileDownloader::~FileDownloader() {
+    abortDownload();
+}
 
-    if (downloadURL != "NO_DATA" && !downloaded) {
-        QString fileName = downloadURL.split("/", QString::SkipEmptyParts).last();
-        _file.setFileName(fileName);
-        if (_file.open(QIODevice::WriteOnly)) {
-            qDebug() << "Starting download" << season << "x" << episode << "from" << downloadURL;
-            QNetworkRequest request(downloadURL);
-            request.setRawHeader("User-Agent", _settings->value("app/agent", "NOT_DEFINED").toByteArray());
-            _reply = _manager.get(request);
-            emit downloadStarted(season, episode);
-            setDownloading(true);
+void FileDownloader::setUrl(QUrl url) {
+    _url = url;
+    if (fileName().isEmpty())
+        setFileName(_url.fileName());
+    emit urlChanged();
+}
 
-            connect(_reply, SIGNAL(readyRead()),
-                    this, SLOT(readData()));
-            connect(_reply, SIGNAL(downloadProgress(qint64, qint64)),
-                    this, SLOT(progress(qint64, qint64)));
-            connect(_reply, SIGNAL(finished()),
-                    this, SLOT(finishedData()));
-            connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)),
-                    this, SLOT(error(QNetworkReply::NetworkError)));
+void FileDownloader::setFilePath(QString path) {
+    bool isDownloaded = _file.exists();
+    if (path.isEmpty())
+        QDir().setCurrent(QStandardPaths::writableLocation(QStandardPaths::DataLocation));
+    else if (!QDir().setCurrent(path))
+        setFilePath();
+    emit filePathChanged();
+    if (isDownloaded != _file.exists())
+        emit isDownloadedChanged();
+}
 
-            return;
+void FileDownloader::setFileName(QString name) {
+    bool isDownloaded = _file.exists();
+    if (name.isEmpty())
+        _file.setFileName(_url.fileName());
+    else
+        _file.setFileName(name);
+    emit fileNameChanged();
+    if (isDownloaded != _file.exists())
+        emit isDownloadedChanged();
+}
+
+void FileDownloader::startDownload() {
+    if (!isDownloaded() && !isDownloading()) {
+        if (QDir().mkpath(QDir().currentPath())) {
+            if (_file.open(QIODevice::WriteOnly)) {
+                qDebug() << "Starting download" << _url;
+                QNetworkRequest request(_url);
+                request.setRawHeader("User-Agent", QByteArray("SailfishApp"));
+                _reply = _manager.get(request);
+                _downloading = true;
+                emit isDownloadingChanged();
+
+                connect(_reply, SIGNAL(readyRead()),
+                        this, SLOT(readData()));
+                connect(_reply, SIGNAL(downloadProgress(qint64, qint64)),
+                        this, SLOT(progressMade(qint64, qint64)));
+                connect(_reply, SIGNAL(finished()),
+                        this, SLOT(finishedData()));
+                connect(_reply, SIGNAL(error(QNetworkReply::NetworkError)),
+                        this, SLOT(error(QNetworkReply::NetworkError)));
+            }
+            else {
+                qDebug() << "Error creating file" << fileName();
+            }
         }
         else {
-            qDebug() << "Error creating file" << fileName;
-
-            if (!_downloadQueue.isEmpty())
-                _downloadQueue.dequeue();
-            if (!_downloadQueue.isEmpty())
-                doDownload(_downloadQueue.head().first, _downloadQueue.head().second);
-
-            return;
+            qDebug() << "Cannot write to this directory" << QDir().currentPath();
         }
     }
     else {
-        qDebug() << "Could not find download link of" << season << "x" << episode << "or already downloaded";
-
-        if (!_downloadQueue.isEmpty())
-            _downloadQueue.dequeue();
-        if (!_downloadQueue.isEmpty())
-            doDownload(_downloadQueue.head().first, _downloadQueue.head().second);
-
-        return;
+        qDebug() << "File has already been downloaded or is currently being downloaded!";
     }
 }
 
-void FileDownloader::download(int season, int episode) {
-    QPair<int, int> number(season, episode);
-
-    if (!_downloadQueue.contains(number)) {
-        if (_downloadQueue.isEmpty()) {
-            _downloadQueue.enqueue(number);
-            doDownload(season, episode);
-        }
-        else {
-            _downloadQueue.enqueue(number);
-            emit downloadEnqueued(season, episode);
-        }
-    }
-}
-
-int FileDownloader::abort() {
-    int removed = 0;
-
-    if (!_downloadQueue.isEmpty()) {
-        QPair<int, int> number = _downloadQueue.head();
-
+void FileDownloader::abortDownload() {
+    if (_downloading) {
+        qDebug() << "Aborting download of" << _url;
         disconnect(_reply, SIGNAL(readyRead()),
                    this, SLOT(readData()));
         disconnect(_reply, SIGNAL(downloadProgress(qint64, qint64)),
-                   this, SLOT(progress(qint64, qint64)));
+                   this, SLOT(progressMade(qint64,qint64)));
         disconnect(_reply, SIGNAL(finished()),
                    this, SLOT(finishedData()));
         disconnect(_reply, SIGNAL(error(QNetworkReply::NetworkError)),
@@ -122,152 +90,54 @@ int FileDownloader::abort() {
         _file.remove();
         _reply->deleteLater();
 
-        qDebug() << "Aborting download of" << number.first << "x" << number.second;
-        removed = _downloadQueue.removeAll(number);
-        if (removed > 0)
-            emit downloadDequeued(number.first, number.second);
-        deleteFile(number.first, number.second, true);
-        emit downloadAborted(number.first, number.second);
+        _downloading = false;
+        emit isDownloadingChanged();
     }
-
-    if (_downloadQueue.isEmpty())
-        setDownloading(false);
-    else
-        doDownload(_downloadQueue.head().first, _downloadQueue.head().second);
-
-    return removed;
 }
 
-int FileDownloader::dequeue(int season, int episode) {
-    QPair<int, int> number(season, episode);
-    int removed = 0;
-
-    if (!_downloadQueue.isEmpty()) {
-        if (_downloadQueue.head() == number)
-            removed = abort();
-        else {
-            removed = _downloadQueue.removeAll(number);
-            if (removed > 0)
-                emit downloadDequeued(season, episode);
-        }
-    }
-
-    return removed;
-}
-
-bool FileDownloader::deleteFile(int season, int episode, bool force) {
-    if (!_downloadQueue.isEmpty())
-        if (_downloadQueue.head() == QPair<int, int>(season, episode))
-            abort();
-
-    if (_settings->value(QString("downloads/%1/%2/downloaded").arg(season).arg(episode), false).toBool() || force) {
-        _settings->setValue(QString("downloads/%1/%2/downloaded").arg(season).arg(episode), false);
-        QString filePath = _settings->value(QString("downloads/%1/%2/localFile").arg(season).arg(episode), "NO_DATA").toString();
-        if (filePath != "NO_DATA") {
-            QFile file(filePath);
-            if (file.remove()) {
-                qDebug() << "Deleted file" << QFileInfo(file).fileName();
-                emit fileDeleted(season, episode);
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-bool FileDownloader::isDownloading(int season, int episode) {
-    QPair<int, int> number(season, episode);
-    if (_downloadQueue.isEmpty())
-        return false;
-    else
-        return _downloadQueue.head() == number && downloading();
-}
-
-bool FileDownloader::isEnqueued(int season, int episode) {
-    QPair<int, int> number(season, episode);
-    return _downloadQueue.contains(number);
-}
-
-bool FileDownloader::isDownloaded(int season, int episode) {
-    return _settings->value(QString("downloads/%1/%2/downloaded").arg(season).arg(episode), false).toBool();
-}
-
-void FileDownloader::doEnd()
-{
-    _downloadQueue.clear();
-    abort();
+void FileDownloader::deleteFile() {
+    qDebug() << "Deleting file" << _file.fileName();
+    _file.remove();
+    emit isDownloadedChanged();
 }
 
 void FileDownloader::readData() {
     _file.write(_reply->read(_reply->bytesAvailable()));
 }
 
-void FileDownloader::progress(qint64 bytesReceived, qint64 bytesTotal) {
-    if (!_downloadQueue.isEmpty() && bytesReceived != _lastBytesReceived)
-        emit downloadProgress(_downloadQueue.head().first, _downloadQueue.head().second, bytesReceived, bytesTotal);
-    //qDebug() << QFileInfo(_file).fileName() << ":" << bytesReceived / 1024 / 1024 << "/" << bytesTotal / 1024 / 1024 << "MB";
+void FileDownloader::progressMade(qint64 bytesReceived, qint64 bytesTotal) {
+    if (bytesReceived != _lastBytesReceived) {
+        _lastBytesReceived = bytesReceived;
+        _progress = (double)bytesReceived / (double)bytesTotal;
+        emit progressChanged();
+        //qDebug() << QFileInfo(_file).fileName() << ":" << _progress; //<< bytesReceived / 1024 / 1024 << "/" << bytesTotal / 1024 / 1024 << "MB";
+    }
 }
 
 void FileDownloader::finishedData() {
-    if (!_downloadQueue.isEmpty() && _reply->error() == QNetworkReply::NoError) {
-        QPair<int, int> number = _downloadQueue.head();
+    _downloading = false;
+    emit isDownloadingChanged();
+    if (_reply->error() == QNetworkReply::NoError) {
         qDebug() << "Finished downloading" << QFileInfo(_file).fileName() << QFileInfo(_file).size() / 1024 / 1024 << "MB";
-
-        _settings->setValue(QString("downloads/%1/%2/downloaded").arg(number.first).arg(number.second), true);
-        _settings->setValue(QString("downloads/%1/%2/localFile").arg(number.first).arg(number.second), QFileInfo(_file).absoluteFilePath());
-        _settings->sync();
-
-        disconnect(sender(), SIGNAL(readyRead()),
+        disconnect(_reply, SIGNAL(readyRead()),
                    this, SLOT(readData()));
-        disconnect(sender(), SIGNAL(downloadProgress(qint64, qint64)),
-                   this, SLOT(progress(qint64, qint64)));
-        disconnect(sender(), SIGNAL(finished()),
+        disconnect(_reply, SIGNAL(downloadProgress(qint64, qint64)),
+                   this, SLOT(progressMade(qint64,qint64)));
+        disconnect(_reply, SIGNAL(finished()),
                    this, SLOT(finishedData()));
-        disconnect(sender(), SIGNAL(error(QNetworkReply::NetworkError)),
+        disconnect(_reply, SIGNAL(error(QNetworkReply::NetworkError)),
                    this, SLOT(error(QNetworkReply::NetworkError)));
-
-        _file.close();
         _reply->deleteLater();
-        emit fileDownloaded(number.first, number.second);
-
-        _downloadQueue.dequeue();
-        if (_downloadQueue.isEmpty())
-            setDownloading(false);
-        else
-            doDownload(_downloadQueue.head().first, _downloadQueue.head().second);
+        _file.close();
+        emit isDownloadedChanged();
     }
+    else
+        abortDownload();
 }
 
 void FileDownloader::error(QNetworkReply::NetworkError error) {
     abort();
     if (error != QNetworkReply::NoError) {
         qDebug() << "Error while downloading file from" << _reply->url().toString() << ":" << _reply->errorString();
-    }
-}
-
-void FileDownloader::setDownloading(bool downloading) {
-    if (downloading != _downloading) {
-        _downloading = downloading;
-        emit downloadingChanged();
-    }
-}
-
-void FileDownloader::checkLocalFiles() {
-    QFileInfoList files = QDir().entryInfoList(QStringList("*.mp3"), QDir::Files, QDir::Name);
-    if (files.size() > 0) {
-        QList<int> seasons = _settings->seasons("downloads");
-        for (int season = 0; season < seasons.size(); ++season) {
-            QList<int> episodes = _settings->episodes("downloads", seasons.at(season));
-            for (int episode = 0; episode < episodes.size(); ++episode) {
-                QString fileName = _settings->value(QString("downloads/%1/%2/localFile").arg(seasons.at(season)).arg(episodes.at(episode)), "NO_DATA").toString();
-                if (QFileInfo(fileName).exists())
-                    files.removeAll(QFileInfo(fileName));
-            }
-        }
-        while (!files.isEmpty()) {
-            QFileInfo fileInfo = files.takeFirst();
-            if (QFile(fileInfo.absoluteFilePath()).remove())
-                qDebug() << "Removed local file:" << fileInfo.absoluteFilePath();
-        }
     }
 }

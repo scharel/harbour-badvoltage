@@ -1,122 +1,114 @@
-/*******************************************************************************
-  *
-  * harbour-badvoltage.qml
-  * harbour-badvoltage is a Bad Voltage podcast client app for SailfishOS.
-  *
-  * Copyright (C) 2014  Scharel Clemens <scharelc@gmail.com>
-  *
-  * This file is part of harbour-badvoltage.
-  *
-  * harbour-badvoltage is free software: you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation, either version 3 of the License, or
-  * (at your option) any later version.
-  *
-  * harbour-badvoltage is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-  *
-  * You should have received a copy of the GNU General Public License
-  * along with harbour-badvoltage.  If not, see <http://www.gnu.org/licenses/>.
-  *
-  *****************************************************************************/
-
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import QtMultimedia 5.0
+import Nemo.Configuration 1.0
+import QtQuick.XmlListModel 2.0
+import QtMultimedia 5.6
 import "pages"
-import "content"
+import "cover"
 
 ApplicationWindow
 {
-    id: app
+    id: appWindow
 
-    property var feedModel: FeedData { }
-    Component.onCompleted: feedModel.reloadData()
-    property int nUnSeen: 0
-
-    cover: Qt.resolvedUrl("cover/CoverPage.qml")
-    initialPage: Component { FeedPage { } }
-
-    function getTimeFromMs(milliseconds) {
-        var hours = Math.floor(milliseconds / 1000 / 60 / 60)
-        var minutes = Math.floor((milliseconds-hours*1000*60*60) / 1000 / 60)
-        var seconds = Math.floor((milliseconds-hours*1000*60*60-minutes*1000*60) / 1000)
-        return (hours < 1 ? "" : hours + ":") + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds)
+    property int numNewEpisodes: 0
+    ConfigurationGroup {
+        id: settings
+        path: "/apps/harbour-badvoltage/settings"
+        property string updateTime: qsTr("never")
     }
-    function getMsFromTime(time) {
-        var hours = parseInt(time.split(":", 3)[0])
-        var minutes = parseInt(time.split(":", 3)[1])
-        var seconds = parseInt(time.split(":", 3)[2])
-        return 1000 * (seconds + 60 * (minutes + 60 * hours))
+    ConfigurationGroup {
+        id: listenedEpisodes
+        path: "/apps/harbour-badvoltage/listened_episodes"
+        onValueChanged: feedModel.countNewEpisodes()
     }
 
-    function getSeason(number) {
-        return parseInt(number.replace(/×/g, "x").split("x", 2)[0].trim())
-    }
-    function getEpisode(number) {
-        return parseInt(number.replace(/×/g, "x").split("x", 2)[1].trim())
-    }
-    function getNumber(season, episode) {
-        return season + "x" + episode
-    }
-    function getPrettyNumber(season, episode) {
-        return season + "×" + episode
-    }
+    initialPage: Component { FeedPage{ } }
+    cover: Component { CoverPage{ } }
 
     Audio {
-        id: player
-        //autoLoad: false
-
-        property int season: 0
-        property int episode: 0
-        property bool playing: false
-        property bool paused: false
-        property bool stopped: true
-        signal isEndOfMedia()
-
-        onPlaying: {
-            console.log("Playing: " + source)
-            stopped = false
-            paused = false
-            playing = true
-        }
-        onPaused:{
-            console.log("Paused: " + source)
-            stopped = false
-            playing = true
-            paused = true
-        }
-        onStopped: {
-            console.log("Stopped: " + source)
-            playing = false
-            paused = false
-            stopped = true
-            if (status === Audio.EndOfMedia)
-                isEndOfMedia()
-            source = ""
-            season = 0
-            episode = 0
-        }
-        function playEpisode(newSeason, newEpisode) {
-            stop()
-            season = newSeason
-            episode = newEpisode
-            if (downloader.isDownloaded(season, episode))
-                source = settings.value("downloads/" + season + "/" + episode + "/localFile", "NO_LOCAL_FILE")
+        id: audioPlayer
+        property bool isPlaying: false
+        onPlaybackStateChanged: {
+            if (playbackState === Audio.PlayingState)
+                isPlaying = true
             else
-                source = settings.value("content/" + season + "/" + episode + "/enclosure_url", "NO_REMOTE_FILE")
-            play()
+                isPlaying = false
+        }
+        onStopped: source = ""
+        function isSameSource(s) {
+            var s1 = decodeURI(s)
+            var s2 = decodeURI(source).replace("file://", "")
+            return s1 === s2 ? true : false
         }
     }
 
-    // Is not working as expected
-    /*Connections {
-        target: downloader
-        onFileDownloaded: {
-            if (signalSeason === player.season && signalEpisode === player.episode)
-                player.playEpisode(signalSeason, signalEpisode)
+    function msec2timeString(msec) {
+        return new Date(msec + new Date(msec).getTimezoneOffset() * 60000).toLocaleString(Qt.locale(), msec > 3600000 ? "H:mm:ss" : "mm:ss")
+    }
+
+    XmlListModel {
+        id: feedModel
+
+        property string file: StandardPaths.data + "/feed.xml"
+        property string url: "https://www.badvoltage.org/feed/mp3"
+        property bool busy: false
+
+        source: file
+        query: "/rss/channel/item"
+        namespaceDeclarations: "declare namespace itunes='http://www.itunes.com/dtds/podcast-1.0.dtd'; declare namespace content='http://purl.org/rss/1.0/modules/content/';"
+
+        XmlRole { name: "title"; query: "title/string()"; isKey: false }
+        XmlRole { name: "pubDate"; query: "pubDate/string()"; isKey: false }
+        XmlRole { name: "guid"; query: "guid/string()"; isKey: true }
+        XmlRole { name: "downloadSize"; query: "enclosure/@length/string()"; isKey: false }
+        XmlRole { name: "description"; query: "description/string()"; isKey: false }
+        XmlRole { name: "content_encoded"; query: "content:encoded/string()"; isKey: false }
+        XmlRole { name: "enclosure_url"; query: "enclosure/@url/string()"; isKey: false }
+        XmlRole { name: "duration"; query: "itunes:duration/string()"; isKey: false }
+
+        Component.onCompleted: { countNewEpisodes(); update() }
+        onCountChanged: countNewEpisodes()
+
+        function update() {
+            console.log("Updating feed...")
+            busy = true
+            var feedReq = new XMLHttpRequest
+            feedReq.open("GET", url)
+            feedReq.onreadystatechange = function() {
+                if (feedReq.readyState === XMLHttpRequest.DONE) {
+                    if (feedReq.status === 200) {
+                        console.log("Loaded feed from web")
+                        var data = feedReq.responseText
+                        var filePut = new XMLHttpRequest
+                        filePut.open("PUT", file)
+                        filePut.onreadystatechange = function() {
+                            if (filePut.readyState === XMLHttpRequest.DONE) {
+                                reload()
+                            }
+                        }
+                        filePut.send(data)
+                        settings.updateTime = new Date().toLocaleString(Qt.locale(), Locale.ShortFormat)
+                    }
+                    else {
+                        console.log("Error loading feed from web")
+                    }
+                    busy = false
+                }
+            }
+            feedReq.send()
         }
-    }*/
+
+        function countNewEpisodes() {
+            var num = 0
+            for (var i = 0; i < count; i ++) {
+                if (!listenedEpisodes.value(get(i).title, false, Boolean) === true)
+                    num ++
+            }
+            numNewEpisodes = num
+            return numNewEpisodes
+        }
+    }
+
+    allowedOrientations: Orientation.All
+    _defaultPageOrientations: Orientation.Portrait
 }

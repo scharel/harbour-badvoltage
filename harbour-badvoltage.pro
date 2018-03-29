@@ -14,34 +14,29 @@ TARGET = harbour-badvoltage
 
 CONFIG += sailfishapp
 
+HEADERS += \
+    src/FileDownloader.h
+
 SOURCES += src/harbour-badvoltage.cpp \
     src/FileDownloader.cpp
 
-OTHER_FILES += qml/harbour-badvoltage.qml \
+DISTFILES += qml/harbour-badvoltage.qml \
+    qml/cover/CoverPage.qml \
+    rpm/harbour-badvoltage.changes.in \
+    rpm/harbour-badvoltage.changes.run.in \
     rpm/harbour-badvoltage.spec \
     rpm/harbour-badvoltage.yaml \
     translations/*.ts \
-    harbour-badvoltage.desktop \
-    qml/content/RssData.qml \
-    qml/content/FeedData.qml \
-    qml/cover/BV.png \
-    qml/cover/CoverPage.qml \
-    qml/pages/FeedPage.qml \
-    qml/pages/EpisodePage.qml \
-    qml/pages/CommunityPage.qml \
-    qml/pages/AboutPage.qml \
-    qml/pages/LicensePage.qml \
-    qml/content/About.qml \
-    README \
-    COPYING \
-    rpm/harbour-badvoltage.changes
+    harbour-badvoltage.desktop
+
+SAILFISHAPP_ICONS = 86x86 108x108 128x128
 
 # to disable building translations every time, comment out the
 # following CONFIG line
 CONFIG += sailfishapp_i18n
+
+# German translation is enabled as an example. If you aren't
+# planning to localize your app, remember to comment out the
+# following TRANSLATIONS line. And also do not forget to
+# modify the localized app name in the the .desktop file.
 TRANSLATIONS += translations/harbour-badvoltage-de.ts
-
-HEADERS += \
-    src/Settings.h \
-    src/FileDownloader.h
-

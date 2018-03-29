@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.1">
 <context>
     <name>AboutPage</name>
     <message>
@@ -17,6 +17,10 @@
 <context>
     <name>CommunityPage</name>
     <message>
+        <source>Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Community</source>
         <extracomment>Header of the Community page</extracomment>
         <translation type="unfinished"></translation>
@@ -25,145 +29,78 @@
 <context>
     <name>CoverPage</name>
     <message>
-        <source>Updating...</source>
-        <extracomment>While updating feed</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No</source>
-        <extracomment>Number of unseen episodes</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>s</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source></source>
         <translation></translation>
     </message>
     <message>
-        <source>Unseen Episode</source>
+        <source>Udating...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>new episodes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>new episode</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>EpisodePage</name>
     <message>
-        <source>View in Browser</source>
-        <extracomment>Open the badvoltage.org webpage, showing this episode in external browser</extracomment>
+        <source></source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Discuss in the community</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Download</source>
-        <extracomment>Download episode for offline listening</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>MB</source>
-        <extracomment>Size of the episode in MB (Mega Bytes)
-----------
-Size of the episode in MB (Mega Bytes)</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Abort download</source>
-        <extracomment>Abort ongoing download</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add to download queue</source>
-        <extracomment>Add episode to download queue for offline listening (if another download is currently going on)</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove from download queue</source>
-        <extracomment>Remove episode from download queue for offline listening (if another download is currently going on)</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete from device</source>
-        <extracomment>Delete downloaded episode from device</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deleting</source>
-        <extracomment>Deleting hint on remorse timer, [SEASON]x[EPISODE] is added</extracomment>
+        <source>Visit the show&apos;s website</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>FeedPage</name>
     <message>
-        <source>Bad Voltage</source>
-        <extracomment>Header of the initial Page</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>About</source>
-        <extracomment>Menu item that leads to the About page</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Community</source>
-        <extracomment>Menu item that loads the Community page in the browser after the Community has been visited for the first time</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Community (in external browser)</source>
-        <extracomment>Menu item that loads the Community page in the browser before the Community has been visited for the first time</extracomment>
+        <source>Update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Update Feed</source>
-        <extracomment>Menu item that updates the Feed page</extracomment>
+        <source>Updated</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Download</source>
-        <extracomment>Download episode for offline listening</extracomment>
+        <source>Bad Voltage</source>
+        <extracomment>Header of the feed page</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>MB</source>
-        <extracomment>Size of the episode in MB (Mega Bytes)
-----------
-Size of the episode in MB (Mega Bytes)</extracomment>
+        <source>No shows available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Abort download</source>
-        <extracomment>Abort ongoing download</extracomment>
+        <source>Pull down to update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add to download queue</source>
-        <extracomment>Add episode to download queue for offline listening (if another download is currently going on)</extracomment>
+        <source>Mark as listened</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove from download queue</source>
-        <extracomment>Remove episode from download queue for offline listening (if another download is currently going on)</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete from device</source>
-        <extracomment>Delete downloaded episode from device</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mark as seen</source>
-        <extracomment>Mark feed ass seen</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deleting</source>
-        <extracomment>Deleting hint on remorse timer, [SEASON]x[EPISODE] is added</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mark as unseen</source>
-        <extracomment>Unmark feed as seen</extracomment>
+        <source>Mark as new</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -172,6 +109,13 @@ Size of the episode in MB (Mega Bytes)</extracomment>
     <message>
         <source>License</source>
         <extracomment>Header of the License page</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>harbour-badvoltage</name>
+    <message>
+        <source>never</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

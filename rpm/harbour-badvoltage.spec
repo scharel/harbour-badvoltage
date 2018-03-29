@@ -6,24 +6,22 @@
 Name:       harbour-badvoltage
 
 # >> macros
-%define __provides_exclude_from ^%{_datadir}/.*$
 # << macros
 
 %{!?qtc_qmake:%define qtc_qmake %qmake}
 %{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
-Summary:    Bad Voltage
-Version:    0.3
-Release:    3
-Group:      Applications/Internet
-License:    GNU General Public License
-URL:        https://github.com/scharel/harbour-badvoltage
+Summary:    Bad Voltage podcast
+Version:    1.0
+Release:    1
+Group:      Qt/Qt
+License:    LICENSE
+URL:        http://example.org/
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  harbour-badvoltage.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
 Requires:   qt5-qtdeclarative-import-xmllistmodel
-Requires:   qt5-qtdeclarative-import-multimedia
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
@@ -31,7 +29,7 @@ BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  desktop-file-utils
 
 %description
-Podcast client for Bad Voltage
+Short description of my Sailfish OS Application
 
 
 %prep
@@ -69,6 +67,6 @@ desktop-file-install --delete-original       \
 %{_bindir}
 %{_datadir}/%{name}
 %{_datadir}/applications/%{name}.desktop
-%{_datadir}/icons/hicolor/86x86/apps/%{name}.png
+%{_datadir}/icons/hicolor/*/apps/%{name}.png
 # >> files
 # << files
