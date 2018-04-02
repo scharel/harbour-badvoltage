@@ -79,10 +79,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Updated</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Bad Voltage</source>
         <extracomment>Header of the feed page</extracomment>
         <translation type="unfinished"></translation>
@@ -101,6 +97,14 @@
     </message>
     <message>
         <source>Mark as new</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Updating...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last update</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

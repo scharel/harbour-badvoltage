@@ -6,6 +6,10 @@ Page {
     property var episode
     property var source
     property bool audioHasSameSource: audioPlayer.isSameSource(source)
+    Connections {
+        target: audioPlayer
+        onSourceChanged: audioHasSameSource = audioPlayer.isSameSource(source)
+    }
 
     SilicaFlickable {
         anchors.fill: parent
@@ -81,6 +85,7 @@ Page {
                     }
                     IconButton {
                         icon.source: audioPlayer.isPlaying && audioHasSameSource ? "image://theme/icon-l-pause" : "image://theme/icon-l-play"
+                        enabled: !audioPlayer.isLoading
                         onClicked: {
                             if (!audioHasSameSource) {
                                 audioPlayer.stop()
@@ -111,15 +116,20 @@ Page {
                     width: parent.width
                     label: audioHasSameSource ? msec2timeString(audioPlayer.duration) : episode.duration
                     minimumValue: 0
-                    maximumValue: audioPlayer.duration
+                    maximumValue: audioHasSameSource ? (audioPlayer.duration > 0 ? audioPlayer.duration : 1) : 1
                     stepSize: 1000
                     value: audioHasSameSource ? audioPlayer.position : 0
-                    valueText: audioHasSameSource ? msec2timeString(value) : " "
+                    valueText: msec2timeString(value) //audioHasSameSource ? msec2timeString(value) : " "
                     enabled: audioPlayer.seekable && audioHasSameSource && maximumValue > minimumValue
                     handleVisible: enabled
-                    onReleased: {
-                        //console.log("Seek min:" + minimumValue + "; max:" + maximumValue + "; slider:" + sliderValue)
+                    onReleased:
                         audioPlayer.seek(sliderValue)
+                    Connections {
+                        target: audioPlayer
+                        onPositionChanged: {
+                            if (audioHasSameSource)
+                                controlSlider.value = audioPlayer.position
+                        }
                     }
                 }
             }

@@ -22,13 +22,12 @@ Page {
                 onClicked: Qt.openUrlExternally("http://community.badvoltage.org?mobile_view=1")
             }
             MenuItem {
-                text: qsTr("Update")
+                text: feedModel.busy ? qsTr("Updating...") : qsTr("Update")
                 enabled: !feedModel.busy
                 onClicked: feedModel.update()
             }
             MenuLabel {
-                id: updateMenuLabel
-                text: qsTr("Updated") + ": " + settings.updateTime
+                text: qsTr("Last update") + ": " + settings.updateTime
             }
         }
 

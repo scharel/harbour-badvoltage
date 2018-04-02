@@ -22,12 +22,12 @@ SOURCES += src/harbour-badvoltage.cpp \
 
 DISTFILES += qml/harbour-badvoltage.qml \
     qml/cover/CoverPage.qml \
-    rpm/harbour-badvoltage.changes.in \
-    rpm/harbour-badvoltage.changes.run.in \
     rpm/harbour-badvoltage.spec \
     rpm/harbour-badvoltage.yaml \
     translations/*.ts \
-    harbour-badvoltage.desktop
+    harbour-badvoltage.desktop \
+    rpm/harbour-badvoltage.changes \
+    rpm/harbour-badvoltage.changes.run.in
 
 SAILFISHAPP_ICONS = 86x86 108x108 128x128
 

@@ -12,7 +12,8 @@
 # * date Author's Name <author's email> version-release
 # - Summary of changes
 
-* Sun Apr 13 2014 Jack Tar <jack.tar@example.com> 0.0.1-1
-- Scrubbed the deck
-- Hoisted the sails
+* Mon Apr 04 2018 Scharel Clemens <harbour-badvoltage@scharel.name> 1.0-1
+- Some enhancements in the audio control
 
+* Thu Mar 29 2018 Scharel Clemens <harbour-badvoltage@scharel.name> 1.0-0
+- Rewrite of the app
