@@ -139,7 +139,7 @@ Page {
                         onClicked: downloader.startDownload()
                     }
                     MenuItem {
-                        text: qsTr("Abort download" + " (" + (downloader.progress * 100).toPrecision(3) + " %)")
+                        text: qsTr("Abort download" + " (" + (downloadSize / 1024 / 1024 * downloader.progress).toPrecision(3) + "/" + (downloadSize / 1024 / 1024).toPrecision(3) + " MB)")//(downloader.progress * 100).toPrecision(3) + " %)")
                         visible: downloader.isDownloading
                         onClicked: downloader.abortDownload()
                     }
