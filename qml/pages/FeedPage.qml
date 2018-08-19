@@ -22,6 +22,21 @@ Page {
                 onClicked: Qt.openUrlExternally("http://community.badvoltage.org?mobile_view=1")
             }
             MenuItem {
+                text: qsTr("Mark all as listened")
+                WorkerScript {
+
+                }
+
+                onClicked: {
+                    for (var i=0; i < feedModel.count; i++) {
+                        if (listenedEpisodes.value(feedModel.get(i).title) === false)
+                            listenedEpisodes.setValue(feedModel.get(i).title, true)
+                    }
+                }
+                visible: numNewEpisodes > 1
+            }
+
+            MenuItem {
                 text: feedModel.busy ? qsTr("Updating...") : qsTr("Update")
                 enabled: !feedModel.busy
                 onClicked: feedModel.update()
@@ -161,6 +176,13 @@ Page {
                     }
                 }
             }
+        }
+
+        section.property: "title"
+        section.criteria: ViewSection.FirstCharacter
+        section.labelPositioning: ViewSection.CurrentLabelAtStart
+        section.delegate: SectionHeader {
+            text: qsTr("Season") + " " + section
         }
 
         ViewPlaceholder {

@@ -75,20 +75,24 @@
         <translation type="unfinished">Community</translation>
     </message>
     <message>
+        <source>Mark all as listened</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Updating...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Bad Voltage</source>
         <extracomment>Header of the feed page</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No shows available</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pull down to update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -100,11 +104,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Updating...</source>
+        <source>Season</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Last update</source>
+        <source>No shows available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pull down to update</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -2,12 +2,13 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 CoverBackground {
-    CoverPlaceholder {
-        id: placeHolder
-        icon.source: "BV.png"
-        //text: qsTr("Bad Voltage")
+    Image {
+        source: "BadVoltage.png"
+        fillMode: Image.PreserveAspectFit
+        x: Theme.horizontalPageMargin; y: x
+        width: parent.width - 2 * Theme.horizontalPageMargin
+        opacity: 0.5
     }
-
     Label {
         id: newEpisodesLabel
         anchors.centerIn: parent
