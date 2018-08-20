@@ -5,11 +5,6 @@ Page {
     id: episodePage
     property var episode
     property var source
-    property bool audioHasSameSource: audioPlayer.isSameSource(source)
-    Connections {
-        target: audioPlayer
-        onSourceChanged: audioHasSameSource = audioPlayer.isSameSource(source)
-    }
 
     SilicaFlickable {
         anchors.fill: parent
@@ -77,33 +72,33 @@ Page {
                     spacing: 2 * Theme.paddingLarge
                     IconButton {
                         icon.source: "image://theme/icon-m-left"
-                        enabled: audioPlayer.seekable && audioHasSameSource
+                        enabled: audioPlayer.seekable && audioPlayer.title === episode.title
                         Timer {
                             interval: 500; running: parent.down; repeat: true; triggeredOnStart: true
                             onTriggered: audioPlayer.seek(audioPlayer.position - 10000)
                         }
                     }
                     IconButton {
-                        icon.source: audioPlayer.isPlaying && audioHasSameSource ? "image://theme/icon-l-pause" : "image://theme/icon-l-play"
+                        icon.source: audioPlayer.isPlaying && audioPlayer.title === episode.title ? "image://theme/icon-l-pause" : "image://theme/icon-l-play"
                         enabled: !audioPlayer.isLoading
                         onClicked: {
-                            if (!audioHasSameSource) {
+                            if (audioPlayer.title !== episode.title) {
                                 audioPlayer.stop()
                                 audioPlayer.source = source
-                                audioHasSameSource = true
+                                audioPlayer.title = episode.title
                             }
                             audioPlayer.isPlaying ? audioPlayer.pause() : audioPlayer.play()
                         }
                         onPressAndHold: {
                             audioPlayer.stop()
                             audioPlayer.source = ""
-                            audioHasSameSource = false
+                            audioPlayer.title = ""
                             controlSlider.value = 0
                         }
                     }
                     IconButton {
                         icon.source: "image://theme/icon-m-right"
-                        enabled: audioPlayer.seekable && audioHasSameSource
+                        enabled: audioPlayer.seekable && audioPlayer.title === episode.title
                         Timer {
                             interval: 500; running: parent.down; repeat: true; triggeredOnStart: true
                             onTriggered: audioPlayer.seek(audioPlayer.position + 10000)
@@ -114,20 +109,20 @@ Page {
                 Slider {
                     id: controlSlider
                     width: parent.width
-                    label: audioHasSameSource ? msec2timeString(audioPlayer.duration) : episode.duration
+                    label: audioPlayer.title === episode.title ? msec2timeString(audioPlayer.duration) : episode.duration
                     minimumValue: 0
-                    maximumValue: audioHasSameSource ? (audioPlayer.duration > 0 ? audioPlayer.duration : 1) : 1
+                    maximumValue: audioPlayer.title === episode.title ? (audioPlayer.duration > 0 ? audioPlayer.duration : 1) : 1
                     stepSize: 1000
-                    value: audioHasSameSource ? audioPlayer.position : 0
-                    valueText: msec2timeString(value) //audioHasSameSource ? msec2timeString(value) : " "
-                    enabled: audioPlayer.seekable && audioHasSameSource && maximumValue > minimumValue
+                    value: audioPlayer.title === episode.title ? audioPlayer.position : 0
+                    valueText: msec2timeString(value)
+                    enabled: audioPlayer.seekable && audioPlayer.title === episode.title && maximumValue > minimumValue
                     handleVisible: enabled
                     onReleased:
                         audioPlayer.seek(sliderValue)
                     Connections {
                         target: audioPlayer
                         onPositionChanged: {
-                            if (audioHasSameSource)
+                            if (audioPlayer.title === episode.title && !controlSlider.down)
                                 controlSlider.value = audioPlayer.position
                         }
                     }

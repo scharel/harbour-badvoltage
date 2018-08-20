@@ -72,7 +72,7 @@ Page {
                 linkColor: Theme.primaryColor
                 font.pixelSize: Theme.fontSizeSmall
                 onLinkActivated: Qt.openUrlExternally(link)
-                text: "<a href=\"https://github.com/badvoltage/sailfish-app/wiki\"><strong>This program</strong></a> is free software: you can redistribute it and/or modify
+                text: "<strong>This program</strong> is free software: you can redistribute it and/or modify
                     it under the terms of the GNU General Public License as published by
                     the Free Software Foundation, either version 3 of the License, or
                     (at your option) any later version.<br />

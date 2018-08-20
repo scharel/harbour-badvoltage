@@ -23,13 +23,9 @@ Page {
             }
             MenuItem {
                 text: qsTr("Mark all as listened")
-                WorkerScript {
-
-                }
-
                 onClicked: {
                     for (var i=0; i < feedModel.count; i++) {
-                        if (listenedEpisodes.value(feedModel.get(i).title) === false)
+                        if (listenedEpisodes.value(feedModel.get(i).title, false) === false)
                             listenedEpisodes.setValue(feedModel.get(i).title, true)
                     }
                 }
@@ -98,10 +94,10 @@ Page {
                     anchors.bottom: parent.verticalCenter
                     anchors.left: numberLabel.right
                     anchors.leftMargin: Theme.paddingSmall
-                    width: parent.width - x
+                    anchors.right: playingIcon.visible ? playingIcon.left : parent.right
                     text: title.split(": ", 2)[1].trim()
                     truncationMode: TruncationMode.Fade
-                    color: episode.highlighted ? Theme.highlightColor : Theme.primaryColor
+                    color: episode.highlighted || audioPlayer.isSameSource(enclosure_url) ? Theme.highlightColor : Theme.primaryColor
                 }
 
                 Image {
@@ -137,6 +133,19 @@ Page {
                     color: episode.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 }
 
+                IconButton {
+                    id: playingIcon
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: parent.right
+                    icon.source: audioPlayer.isPlaying ? "image://theme/icon-m-pause" : "image://theme/icon-m-play"
+                    visible: audioPlayer.isSameSource(enclosure_url)
+                    onClicked: audioPlayer.isPlaying ? audioPlayer.pause() : audioPlayer.play()
+                    onPressAndHold: {
+                        audioPlayer.stop()
+                        audioPlayer.source = ""
+                    }
+                }
+
                 menu: ContextMenu {
                     MenuItem {
                         text: qsTr("Mark as listened")
@@ -149,17 +158,17 @@ Page {
                         onClicked: listenedEpisodes.setValue(title, false)
                     }
                     MenuItem {
-                        text: qsTr("Download" + " (" + (downloadSize / 1024 / 1024).toPrecision(3) + " MB)")
+                        text: qsTr("Download") + " (" + (downloadSize / 1024 / 1024).toPrecision(3) + " MB)"
                         visible: !downloader.isDownloaded && !downloader.isDownloading
                         onClicked: downloader.startDownload()
                     }
                     MenuItem {
-                        text: qsTr("Abort download" + " (" + (downloadSize / 1024 / 1024 * downloader.progress).toPrecision(3) + "/" + (downloadSize / 1024 / 1024).toPrecision(3) + " MB)")//(downloader.progress * 100).toPrecision(3) + " %)")
+                        text: qsTr("Abort download") + " (" + (downloadSize / 1024 / 1024 * downloader.progress).toPrecision(3) + "/" + (downloadSize / 1024 / 1024).toPrecision(3) + " MB)"
                         visible: downloader.isDownloading
                         onClicked: downloader.abortDownload()
                     }
                     MenuItem {
-                        text: qsTr("Delete audio file" + " (" + (downloadSize / 1024 / 1024).toPrecision(3) + " MB)")
+                        text: qsTr("Delete audio file") + " (" + (downloadSize / 1024 / 1024).toPrecision(3) + " MB)"
                         visible: downloader.isDownloaded
                         onClicked: downloader.deleteFile()
                     }

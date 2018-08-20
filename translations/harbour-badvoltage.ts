@@ -21,8 +21,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Community</source>
-        <extracomment>Header of the Community page</extracomment>
+        <source>Reload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Home</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -113,6 +116,18 @@
     </message>
     <message>
         <source>Pull down to update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Abort download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete audio file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -29,6 +29,7 @@ ApplicationWindow
         id: audioPlayer
         property bool isPlaying: false
         property bool isLoading: status === Audio.Loading
+        property string title: ""
         onPlaybackStateChanged: {
             if (playbackState === Audio.PlayingState)
                 isPlaying = true
@@ -36,8 +37,9 @@ ApplicationWindow
                 isPlaying = false
         }
         onStopped: {
-            position = 0
+            //position = 0
             source = ""
+            title = ""
         }
         function isSameSource(s) {
             var s1 = decodeURI(s)

@@ -5,135 +5,64 @@ CoverBackground {
     Image {
         source: "BadVoltage.png"
         fillMode: Image.PreserveAspectFit
-        x: Theme.horizontalPageMargin; y: x
+        x: Theme.paddingLarge; y: x
         width: parent.width - 2 * Theme.horizontalPageMargin
         opacity: 0.5
     }
     Label {
-        id: newEpisodesLabel
+        id: playingEpisodeLabel
         anchors.centerIn: parent
+        text: audioPlayer.title
+        x: Theme.paddingLarge
+        width: parent.width - 2*x
+        truncationMode: TruncationMode.Elide
+        visible: audioPlayer.title !== ""
+    }
+    Label {
+        id: playingEpisodeProgress
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: playingEpisodeLabel.bottom
+        color: Theme.highlightColor
+        visible: playingEpisodeLabel.visible
+        text: msec2timeString(audioPlayer.position) + " / " + msec2timeString(audioPlayer.duration)
+    }
+    CoverActionList {
+        id: playingEpisodeActions
+        enabled: playingEpisodeLabel.visible
+        CoverAction {
+            iconSource: audioPlayer.isPlaying ? "image://theme/icon-cover-pause" : "image://theme/icon-cover-play"
+            onTriggered: audioPlayer.isPlaying ? audioPlayer.pause() : audioPlayer.play()
+        }
+        /*CoverAction {
+            iconSource: "image://theme/icon-cover-next"
+            onTriggered: audioPlayer.seek(audioPlayer.position + 10000)
+        }*/
+    }
+
+    Label {
+        id: newEpisodesLabel
+        anchors.verticalCenter: parent.verticalCenter
+        x: Theme.paddingMedium
+        width: parent.width - 2*x
+        horizontalAlignment: contentWidth > width ? Text.AlignLeft : Text.AlignHCenter
+        truncationMode: TruncationMode.Fade
         text: (numNewEpisodes === 0 ? qsTr("No") : numNewEpisodes) + " " + (numNewEpisodes !== 1 ? qsTr("new episodes") : qsTr("new episode"))
+        visible: !playingEpisodeLabel.visible
     }
     Label {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: newEpisodesLabel.bottom
         color: Theme.highlightColor
-        visible: feedModel.busy
+        visible: !playingEpisodeProgress.visible && feedModel.busy
         text: qsTr("Udating...")
     }
-
     CoverActionList {
+        enabled: !playingEpisodeActions.enabled
         CoverAction {
             iconSource: "image://theme/icon-cover-refresh"
             onTriggered: feedModel.update()
         }
     }
-
-    /*
-    Timer {
-        id: updatingTimer
-        interval: 1500
-    }
-
-    Connections {
-        target: updatingLabel
-        onVisibleChanged: if (updatingLabel.visible === false) updatingTimer.restart()
-    }
-
-    Column {
-        y: 175
-        x: Theme.paddingSmall
-        width: parent.width - 2 * Theme.paddingSmall
-        spacing: Theme.paddingSmall
-
-        Label {
-            id: updatingLabel
-            visible: feedModel.progress !== 1
-            width: parent.width
-            truncationMode: TruncationMode.Fade
-            horizontalAlignment: contentWidth < width ? Text.AlignHCenter : Text.AlignLeft
-            //: While updating feed
-            text: qsTr("Updating...")
-        }
-
-        Label {
-            id: playingLabel
-            visible: !updatingLabel.visible && !player.stopped && !updatingTimer.running
-            width: parent.width
-            truncationMode: TruncationMode.Fade
-            horizontalAlignment: contentWidth < width ? Text.AlignHCenter : Text.AlignLeft
-            text: getPrettyNumber(player.season, player.episode) + ": " + settings.value("content/" + player.season + "/" + player.episode + "/title")
-        }
-
-        Label {
-            id: newEpisodesLabel
-            visible: !updatingLabel.visible && !playingLabel.visible
-            width: parent.width
-            truncationMode: TruncationMode.Fade
-            horizontalAlignment: wrapMode === Text.Wrap ? Text.AlignHCenter : Text.AlignLeft
-            maximumLineCount: 2
-            wrapMode: player.stopped ? Text.Wrap : Text.NoWrap
-            //: Number of unseen episodes
-            text: (nUnSeen === 0 ? qsTr("No") : nUnSeen) + " " + qsTr("Unseen Episode") + (nUnSeen > 1 ? qsTr("s") : qsTr(""))
-        }
-
-        Label {
-            id: audioPositionLabel
-            visible: !player.stopped
-            width: parent.width
-            truncationMode: TruncationMode.Fade
-            horizontalAlignment: contentWidth < width ? Text.AlignHCenter : Text.AlignLeft
-            text: getTimeFromMs(player.position) + "/" + getTimeFromMs(player.duration)
-        }
-    }
-
-    CoverActionList {
-        enabled: player.stopped
-        CoverAction {
-            iconSource: "image://theme/icon-cover-refresh"
-            onTriggered: {
-                //console.log("Cover Refresh")
-                feedModel.reloadData()
-            }
-        }
-    }
-
-    CoverActionList {
-        enabled: player.paused && !player.stopped
-        CoverAction {
-            iconSource: "image://theme/icon-cover-play"
-            onTriggered: {
-                //console.log("Cover Play")
-                player.play()
-            }
-        }
-        CoverAction {
-            iconSource: "image://theme/icon-cover-refresh"
-            onTriggered: {
-                //console.log("Cover Refresh")
-                feedModel.reloadData()
-            }
-        }
-    }
-
-    CoverActionList {
-        enabled: !player.paused && !player.stopped
-        CoverAction {
-            iconSource: "image://theme/icon-cover-pause"
-            onTriggered: {
-                //console.log("Cover Pause")
-                player.pause()
-            }
-        }
-        CoverAction {
-            iconSource: "image://theme/icon-cover-refresh"
-            onTriggered: {
-                //console.log("Cover Refresh")
-                feedModel.reloadData()
-            }
-        }
-    }
-    */
 }
 
 
