@@ -41,6 +41,7 @@ Page {
             PageHeader {
                 //: Header of the About page
                 title: qsTr("About")
+                description: qsTr("Version") + " " + version
             }
 
             Text {

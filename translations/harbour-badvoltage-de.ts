@@ -13,6 +13,10 @@
         <extracomment>Button to page showing the license</extracomment>
         <translation>Lizenz</translation>
     </message>
+    <message>
+        <source>Version</source>
+        <translation>Version</translation>
+    </message>
 </context>
 <context>
     <name>CommunityPage</name>
@@ -79,11 +83,11 @@
     </message>
     <message>
         <source>Mark all as listened</source>
-        <translation>Alle als gehört markieren</translation>
+        <translation>Als gehört markieren</translation>
     </message>
     <message>
         <source>Updating...</source>
-        <translation>Aktualisiere...</translation>
+        <translation>Aktualisiere</translation>
     </message>
     <message>
         <source>Update</source>
@@ -107,28 +111,32 @@
         <translation>Als neu markieren</translation>
     </message>
     <message>
-        <source>Season</source>
-        <translation>Staffel</translation>
-    </message>
-    <message>
-        <source>No shows available</source>
-        <translation>Keine Shows verfügbar</translation>
-    </message>
-    <message>
-        <source>Pull down to update</source>
-        <translation>Ziehen zum aktualisieren</translation>
-    </message>
-    <message>
         <source>Download</source>
         <translation>Herunterladen</translation>
     </message>
     <message>
         <source>Abort download</source>
-        <translation>Download abbrechen</translation>
+        <translation>Herunterladen abbrechen</translation>
     </message>
     <message>
         <source>Delete audio file</source>
-        <translation>MP3 löschen</translation>
+        <translation>Audio Datei löschen</translation>
+    </message>
+    <message>
+        <source>Season</source>
+        <translation>Staffel</translation>
+    </message>
+    <message>
+        <source>No shows available</source>
+        <translation>Keine Podcasts verfügbar</translation>
+    </message>
+    <message>
+        <source>Pull down to update</source>
+        <translation>Ziehen zum Aktualisieren</translation>
+    </message>
+    <message>
+        <source>Deleting audio file</source>
+        <translation>Lösche Audio Datei</translation>
     </message>
 </context>
 <context>

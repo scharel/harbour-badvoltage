@@ -26,6 +26,7 @@ void FileDownloader::setFilePath(QString path) {
     else if (!QDir().setCurrent(path))
         setFilePath();
     emit filePathChanged();
+    emit fullNameChanged();
     if (isDownloaded != _file.exists())
         emit isDownloadedChanged();
 }
@@ -37,8 +38,15 @@ void FileDownloader::setFileName(QString name) {
     else
         _file.setFileName(name);
     emit fileNameChanged();
+    emit fullNameChanged();
     if (isDownloaded != _file.exists())
         emit isDownloadedChanged();
+}
+
+void FileDownloader::setFullName(QString full) {
+    QFileInfo file(full);
+    setFilePath(file.path());
+    setFileName(file.fileName());
 }
 
 void FileDownloader::startDownload() {

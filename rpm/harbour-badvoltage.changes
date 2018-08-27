@@ -12,6 +12,13 @@
 # * date Author's Name <author's email> version-release
 # - Summary of changes
 
+* Mon Aug 27 2018 Scharel Clemens <harbour-badvoltage@scharel.name> 1.1-2
+ - Ability to switch source when the download finished
+ - Added Remorse to delete audio files
+
+* Sun Aug 26 2018 Scharel Clemens <harbour-badvoltage@scharel.name> 1.1-1
+- Ability to resume playback on last position
+
 * Mon Aug 20 2018 Scharel Clemens <harbour-badvoltage@scharel.name> 1.1-0
 - New app icons
 - New cover

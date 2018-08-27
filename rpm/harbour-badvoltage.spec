@@ -14,14 +14,13 @@ Name:       harbour-badvoltage
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    Bad Voltage podcast
 Version:    1.1
-Release:    0
+Release:    2
 Group:      Qt/Qt
 License:    LICENSE
 URL:        http://example.org/
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  harbour-badvoltage.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
-Requires:   qt5-qtdeclarative-import-xmllistmodel
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)

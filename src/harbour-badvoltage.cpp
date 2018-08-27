@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<FileDownloader>("FileDownloader", 1, 0, "FileDownloader");
 
     view->setSource(SailfishApp::pathTo("qml/harbour-badvoltage.qml"));
-    view->rootContext()->setContextProperty("version", QVariant("1.0-1"));
+    view->rootContext()->setContextProperty("version", QVariant("1.1-2"));
 #ifdef QT_DEBUG
     view->rootContext()->setContextProperty("debug", QVariant(true));
 #else

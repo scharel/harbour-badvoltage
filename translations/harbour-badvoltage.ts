@@ -13,6 +13,10 @@
         <extracomment>Button to page showing the license</extracomment>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CommunityPage</name>
@@ -107,6 +111,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Abort download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete audio file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Season</source>
         <translation type="unfinished"></translation>
     </message>
@@ -119,15 +135,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Download</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Abort download</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete audio file</source>
+        <source>Deleting audio file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

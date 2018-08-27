@@ -3,8 +3,8 @@ import Sailfish.Silica 1.0
 
 Page {
     id: episodePage
+    property int index
     property var episode
-    property var source
 
     SilicaFlickable {
         anchors.fill: parent
@@ -72,33 +72,34 @@ Page {
                     spacing: 2 * Theme.paddingLarge
                     IconButton {
                         icon.source: "image://theme/icon-m-left"
-                        enabled: audioPlayer.seekable && audioPlayer.title === episode.title
+                        enabled: audioPlayer.seekable && audioPlaylist.currentIndex === index
                         Timer {
                             interval: 500; running: parent.down; repeat: true; triggeredOnStart: true
                             onTriggered: audioPlayer.seek(audioPlayer.position - 10000)
                         }
                     }
                     IconButton {
-                        icon.source: audioPlayer.isPlaying && audioPlayer.title === episode.title ? "image://theme/icon-l-pause" : "image://theme/icon-l-play"
+                        icon.source: audioPlayer.isPlaying && audioPlaylist.currentIndex === index ? "image://theme/icon-l-pause" : "image://theme/icon-l-play"
                         enabled: !audioPlayer.isLoading
                         onClicked: {
-                            if (audioPlayer.title !== episode.title) {
+                            if (audioPlaylist.currentIndex !== index) {
                                 audioPlayer.stop()
-                                audioPlayer.source = source
-                                audioPlayer.title = episode.title
+                                audioPlaylist.currentIndex = index
                             }
-                            audioPlayer.isPlaying ? audioPlayer.pause() : audioPlayer.play()
+                            if (audioPlayer.isPlaying)
+                                audioPlayer.pause()
+                            else {
+                                audioPlayer.play()
+                            }
                         }
                         onPressAndHold: {
                             audioPlayer.stop()
-                            audioPlayer.source = ""
-                            audioPlayer.title = ""
-                            controlSlider.value = 0
+                            audioPlaylist.currentIndex = -1
                         }
                     }
                     IconButton {
                         icon.source: "image://theme/icon-m-right"
-                        enabled: audioPlayer.seekable && audioPlayer.title === episode.title
+                        enabled: audioPlayer.seekable && audioPlaylist.currentIndex === index
                         Timer {
                             interval: 500; running: parent.down; repeat: true; triggeredOnStart: true
                             onTriggered: audioPlayer.seek(audioPlayer.position + 10000)
@@ -109,20 +110,20 @@ Page {
                 Slider {
                     id: controlSlider
                     width: parent.width
-                    label: audioPlayer.title === episode.title ? msec2timeString(audioPlayer.duration) : episode.duration
+                    label: audioPlaylist.currentIndex === index && audioPlayer.duration > 0 ? msec2timeString(audioPlayer.duration) : episode.duration
                     minimumValue: 0
-                    maximumValue: audioPlayer.title === episode.title ? (audioPlayer.duration > 0 ? audioPlayer.duration : 1) : 1
+                    maximumValue: audioPlaylist.currentIndex === index && audioPlayer.duration > 0 ? audioPlayer.duration : timeString2msec(episode.duration)
                     stepSize: 1000
-                    value: audioPlayer.title === episode.title ? audioPlayer.position : 0
+                    value: audioPlaylist.currentIndex === index && audioPlayer.isPlaying ? audioPlayer.position : episodeAudioPositions.value(episode.title, 0)
                     valueText: msec2timeString(value)
-                    enabled: audioPlayer.seekable && audioPlayer.title === episode.title && maximumValue > minimumValue
+                    enabled: audioPlayer.seekable && audioPlaylist.currentIndex === index && maximumValue > minimumValue
                     handleVisible: enabled
                     onReleased:
                         audioPlayer.seek(sliderValue)
                     Connections {
                         target: audioPlayer
                         onPositionChanged: {
-                            if (audioPlayer.title === episode.title && !controlSlider.down)
+                            if (audioPlaylist.currentIndex === index && !controlSlider.down)
                                 controlSlider.value = audioPlayer.position
                         }
                     }

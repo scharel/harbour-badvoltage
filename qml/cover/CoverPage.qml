@@ -12,11 +12,11 @@ CoverBackground {
     Label {
         id: playingEpisodeLabel
         anchors.centerIn: parent
-        text: audioPlayer.title
+        text: audioPlayer.playlist.currentIndex
         x: Theme.paddingLarge
         width: parent.width - 2*x
         truncationMode: TruncationMode.Elide
-        visible: audioPlayer.title !== ""
+        visible: audioPlayer.playlist.currentIndex >= 0 ? (feedModel.get(audioPlayer.playlist.currentIndex).title !== "" ? true : false) : false
     }
     Label {
         id: playingEpisodeProgress

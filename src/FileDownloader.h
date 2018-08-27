@@ -14,6 +14,7 @@ class FileDownloader : public QObject {
     Q_PROPERTY(QUrl url READ url WRITE setUrl NOTIFY urlChanged)
     Q_PROPERTY(QString filePath READ filePath WRITE setFilePath NOTIFY filePathChanged)
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName NOTIFY fileNameChanged)
+    Q_PROPERTY(QString fullName READ fullName WRITE setFullName NOTIFY fullNameChanged)
     Q_PROPERTY(bool isDownloaded READ isDownloaded NOTIFY isDownloadedChanged)
     Q_PROPERTY(bool isDownloading READ isDownloading NOTIFY isDownloadingChanged)
     Q_PROPERTY(double progress READ progress NOTIFY progressChanged)
@@ -29,8 +30,9 @@ public:
 
     // read functions for the properties
     QUrl url() { return _url; }
-    QString filePath() { return QDir().absolutePath(); }
-    QString fileName() { return _file.fileName(); }
+    QString filePath() { QFileInfo info (_file); return info.absolutePath(); }
+    QString fileName() { QFileInfo info (_file); return info.fileName(); }
+    QString fullName() { QFileInfo info (_file); return info.absoluteFilePath(); }
     int fileSize() { return _file.size(); }
     bool isDownloaded() { return (_file.exists() && !_downloading); }
     bool isDownloading() { return _downloading; } // TODO
@@ -51,6 +53,7 @@ signals:
     void urlChanged();
     void filePathChanged();
     void fileNameChanged();
+    void fullNameChanged();
     void isDownloadedChanged();
     void isDownloadingChanged();
     void progressChanged();
@@ -72,6 +75,7 @@ private:
     void setUrl(QUrl url);
     void setFilePath(QString path = "");
     void setFileName(QString name = "");
+    void setFullName(QString full = "");
 };
 
 #endif // FILEDOWNLOADER_H

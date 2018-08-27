@@ -19,7 +19,11 @@ ApplicationWindow
     ConfigurationGroup {
         id: listenedEpisodes
         path: "/apps/harbour-badvoltage/listened_episodes"
-        onValueChanged: feedModel.countNewEpisodes()
+        onValueChanged: feedModel.parseEpisodes()
+    }
+    ConfigurationGroup {
+        id: episodeAudioPositions
+        path: "/apps/harbour-badvoltage/audio_positions"
     }
 
     initialPage: Component { FeedPage{ } }
@@ -27,29 +31,46 @@ ApplicationWindow
 
     Audio {
         id: audioPlayer
+        audioRole: Audio.MusicRole
         property bool isPlaying: false
         property bool isLoading: status === Audio.Loading
-        property string title: ""
+        playlist: Playlist {
+            id: audioPlaylist
+            playbackMode: Playlist.CurrentItemOnce
+            onItemChanged: console.log(itemCount)
+        }
+
         onPlaybackStateChanged: {
-            if (playbackState === Audio.PlayingState)
+            if (playbackState === Audio.PlayingState) {
                 isPlaying = true
-            else
+                console.log("Started playback of:")
+            }
+            else {
                 isPlaying = false
+                console.log("Stopped playback of:")
+            }
+            console.log(audioPlaylist.currentItemSource + " (" + audioPlaylist.currentIndex + ")")
         }
-        onStopped: {
-            //position = 0
-            source = ""
-            title = ""
-        }
+        onPositionChanged:
+            if (seekable && playlist.currentIndex >= 0)
+                episodeAudioPositions.setValue(feedModel.get(playlist.currentIndex).title, position)
+        onSeekableChanged:
+            if (seekable && episodeAudioPositions.value(feedModel.get(playlist.currentIndex).title, 0) > 0)
+                seek(episodeAudioPositions.value(feedModel.get(playlist.currentIndex).title, position))
+
         function isSameSource(s) {
             var s1 = decodeURI(s)
-            var s2 = decodeURI(source).replace("file://", "")
+            var s2 = decodeURI(audioPlaylist.currentItemSource).replace("file://", "")
             return s1 === s2 ? true : false
         }
     }
 
     function msec2timeString(msec) {
         return new Date(msec + new Date(msec).getTimezoneOffset() * 60000).toLocaleString(Qt.locale(), msec > 3600000 ? "H:mm:ss" : "mm:ss")
+    }
+    function timeString2msec(time) {
+        var times = time.split(":", 3)
+        return times[0] * 3600000 + times[1] * 60000 + times[2] * 1000
     }
 
     XmlListModel {
@@ -72,8 +93,8 @@ ApplicationWindow
         XmlRole { name: "enclosure_url"; query: "enclosure/@url/string()"; isKey: false }
         XmlRole { name: "duration"; query: "itunes:duration/string()"; isKey: false }
 
-        Component.onCompleted: { countNewEpisodes(); update() }
-        onCountChanged: countNewEpisodes()
+        Component.onCompleted: { parseEpisodes(); update() }
+        onCountChanged: parseEpisodes()
 
         function update() {
             console.log("Updating feed...")
@@ -104,9 +125,10 @@ ApplicationWindow
             feedReq.send()
         }
 
-        function countNewEpisodes() {
+        function parseEpisodes() {
             var num = 0
             for (var i = 0; i < count; i ++) {
+                audioPlaylist.insertItem(i, get(i).enclosure_url)
                 if (!listenedEpisodes.value(get(i).title, false, Boolean) === true)
                     num ++
             }

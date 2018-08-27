@@ -59,7 +59,7 @@ Page {
                     target: listenedEpisodes
                     onValueChanged: if (key === title) isListened = listenedEpisodes.value(title, false, Boolean)
                 }
-                onClicked: pageStack.push(Qt.resolvedUrl("EpisodePage.qml"), {episode: model, source: downloader.isDownloaded ? downloader.filePath + "/" + downloader.fileName : enclosure_url})
+                onClicked: pageStack.push(Qt.resolvedUrl("EpisodePage.qml"), {index: index, episode: model})
 
                 FileDownloader {
                     id: downloader
@@ -69,6 +69,14 @@ Page {
                             episode.DelegateModel.inPersistedItems = 1
                         else
                             episode.DelegateModel.inPersistedItems = false
+                    }
+                    onIsDownloadedChanged: {
+                        var currentIndex = audioPlaylist.currentIndex
+                        audioPlayer.stop()
+                        audioPlaylist.removeItem(index)
+                        audioPlaylist.insertItem(index, downloader.isDownloaded ? "file://" + downloader.fullName : enclosure_url)
+                        audioPlaylist.currentIndex = currentIndex
+                        if (currentIndex >= 0) audioPlayer.play()
                     }
                 }
 
@@ -138,7 +146,7 @@ Page {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.right: parent.right
                     icon.source: audioPlayer.isPlaying ? "image://theme/icon-m-pause" : "image://theme/icon-m-play"
-                    visible: audioPlayer.isSameSource(enclosure_url)
+                    visible: audioPlaylist.currentIndex === index
                     onClicked: audioPlayer.isPlaying ? audioPlayer.pause() : audioPlayer.play()
                     onPressAndHold: {
                         audioPlayer.stop()
@@ -170,7 +178,7 @@ Page {
                     MenuItem {
                         text: qsTr("Delete audio file") + " (" + (downloadSize / 1024 / 1024).toPrecision(3) + " MB)"
                         visible: downloader.isDownloaded
-                        onClicked: downloader.deleteFile()
+                        onClicked: Remorse.itemAction(episode, qsTr("Deleting audio file"), function() { downloader.deleteFile() })
                     }
                     Text {
                         id: descriptionText
